@@ -75,6 +75,23 @@
 		
 		<div id="table"></div>
 		
+		<div class="alert alert-dark" role="alert">
+		  <h4 class="alert-heading">Simple Visualization</h4>
+		  
+		  <p>We use the D3 javascript library to create a bubble chaart visulaization of the SPARQL query results. The bubles colors are unique for each protein. 
+		  The bubble size corresponds to the count of the PDB structures. Each bubble hold the protein name and the count of the PDB structures.</p>
+		  
+		  <p><b>Note:</b> While the response of the SPARQL query is returned, you will see a preloader GIF image. When the results are ready, the preloader will disappear and the bubbles will appear. If the query is too fase, you can change the limit to a higher number to see the preloader</p>
+		  
+		</div>
+		
+		<div id="chart">
+			<div id="loader">
+				<img src="img/preloader.gif"/>
+				<p>Loading Data</p>
+			</div>
+		</div>
+		
 		<script>
 
 			// The SPARQL query

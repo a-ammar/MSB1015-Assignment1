@@ -14,6 +14,9 @@ function renderSparqlQueryResults(query) {
         // Call the function responsable of the creation and output the HTML table of the results
         renderHtmlTable(dataset);
 
+        // Call the function responsable of the creation and output the simple visulaization
+        renderSimpleVisualization(dataset)
+
       }
     )
 }
@@ -58,4 +61,77 @@ function renderHtmlTable(dataset) {
 
         document.getElementById("table").innerHTML = html;
     }
+}
+
+function renderSimpleVisualization(dataset) {
+
+    data = {};
+    // restructure the asyncrounos response by creating a map of protein names and PDB counts
+    data.children = dataset.map(function(item) { return { "Name": item.protein.label , "Count": item.count } });
+
+    // Get the width of the SVG holder (div) to use it in creating the visualization
+    var diameter = document.getElementById('chart').offsetWidth;
+
+    // Remove the loader since we got the results and we want to output them
+    d3.select('#chart').select('#loader').remove();
+
+    // Create the main SVG element
+    var svg = d3.select('#chart').append('svg')
+              .attr('width', "100%")
+              .attr('height', diameter)
+              .attr('transform', 'translate(0,0)');
+
+	var color = d3.scaleOrdinal(d3.schemeCategory20);
+
+    // Create a new structure from the data where each element has coordinates corresponds
+    // to the size of the holding SVG
+    var bubble = d3.pack(data)
+              .size([diameter, diameter])
+              .padding(5);
+
+	var nodes = d3.hierarchy(data)
+              .sum(function(d) { return d.Count; });
+
+    // Create the bubbles
+	circles = svg.selectAll("g")
+			.data(bubble(nodes).descendants())
+			.enter()
+			.filter(function(d){
+              return  !d.children
+			})
+			.append("g")
+			.attr("transform", function(d) {
+              return "translate(" + d.x + "," + d.y + ")";
+			})
+
+	circles.append("circle")
+			.attr("r", function(d) {
+				  return d.r;
+			})
+			.style("fill", function(d,i) {
+				  return color(i);
+			})
+
+    // Add the text to the bubbles
+	circles.append("text")
+			.style("text-anchor", "middle")
+            .attr("font-family", "sans-serif")
+            .attr("font-size", function(d){
+                return d.r/8;
+            })
+			.text(function(d) {
+				return d.data.Name.substring(0, d.r / 3);
+			});
+
+    // Add the text to the bubbles
+    circles.append("text")
+          .attr("dy", "1.3em")
+          .style("text-anchor", "middle")
+          .text(function(d) {
+              return "PDB count: " + d.data.Count;
+          })
+          .attr("font-family", "sans-serif")
+          .attr("font-size", function(d){
+              return d.r/8;
+          })
 }
