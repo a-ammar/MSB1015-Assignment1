@@ -92,6 +92,23 @@
 			</div>
 		</div>
 		
+		<div class="alert alert-dark" role="alert">
+		  <h4 class="alert-heading">Advanced Visualization</h4>
+		  
+		  <p>We use the D3 javascript library to create a bubble chaart visulaization of the SPARQL query results.
+		  We use in this chart the Force Simulation function in D3 to create the bubbles in an animated way with collision detection.</p>
+		  <p>Also we construct the URL of the image of the corresponding protein form the Protein Data Bank Website to use it as a background for the bubbles.</p>
+		  <p>We also add interactive effect to the bubbles where the Uniprot ID and the count of the structures appear when hovering on the bubble with a decrease in the opacity of the background</p>
+		  <p><b>Note:</b> You can use the "Run Again" button to see the effect of the Force Simulation in D3</p>
+		</div>
+
+		<div id="chart2">
+			<div id="loader2">
+				<img src="img/preloader.gif"/>
+				<p>Loading Data</p>
+			</div>
+		</div>
+		
 		<script>
 
 			// The SPARQL query

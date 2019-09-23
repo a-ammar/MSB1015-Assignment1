@@ -17,6 +17,8 @@ function renderSparqlQueryResults(query) {
         // Call the function responsable of the creation and output the simple visulaization
         renderSimpleVisualization(dataset)
 
+        // Call the function responsable of the creation and output the advanced visulaization
+        renderAdvancedVisualization(dataset);
       }
     )
 }
@@ -134,4 +136,123 @@ function renderSimpleVisualization(dataset) {
           .attr("font-size", function(d){
               return d.r/8;
           })
+}
+
+function renderAdvancedVisualization(dataset) {
+
+    // Get the width of the SVG holder (div) to use it in creating the visualization
+    var diameter = document.getElementById('chart2').offsetWidth;
+
+    //Create a simulation object to use it later
+    var simulation = d3.forceSimulation()
+                	.force("x", d3.forceX(diameter / 2).strength(0.25))
+                	.force("y", d3.forceY(800 / 2).strength(0.25))
+                	.force("collide", d3.forceCollide(function(d){
+                		return  circlaScale(d.count)+10;
+                	}));
+
+    // Create a linear scale to calculate the sizes of the bubbles depending on the PDB count
+    var circlaScale = d3.scaleLinear()
+        			.domain([0, d3.max(dataset, el => el).count])
+        			.range([0,150])
+        			.clamp(true);
+
+    // Remove the loader since we got the results and we want to output them
+    d3.select('#chart2').select('#loader2').remove();
+
+    // Add the button to the visulaization div
+    document.getElementById('chart2').innerHTML = "<button onclick=\"renderAdvancedVisualizationAgain()\" >Run Again</button>";
+
+    // Create the main SVG element
+    var svg = d3.select('#chart2').append('svg')
+              .attr('width', "100%")
+              .attr('height', "800")
+              .attr('transform', 'translate(0,0)');
+
+	var color = d3.scaleOrdinal(d3.schemeCategory20);
+
+    // Create the bubbles
+    var circles = svg.selectAll("g")
+    	.data(dataset)
+    	.enter()
+    	.append("g")
+    	.append("circle")
+        .attr("r", function(d) {
+                  return circlaScale(d.count);
+              })
+              .attr("fill", function(d,i) {
+                  return color(i);
+              })
+        .style("fill", function(d) { return ("url(#"+"icon-img-"+d.protein.value+")");})
+        .attr("stroke", "black")
+        .attr("stroke-width",3)
+        // Register mouse hover actions using javascript functions
+        .on("mouseover", handleMouseOver)
+        .on("mouseout", handleMouseOut);
+
+
+    // Create the protein image backgrounds for the bubbles
+    var images = svg.selectAll("g")
+		.append('defs')
+        .append('pattern')
+        .attr('id', function(d) { return ("icon-img-"+d.protein.value);}) // just create a unique id (id comes from the json)
+        .attr('patternContentUnits', 'objectBoundingBox')
+        .attr('width', 1)
+        .attr('height', 1)
+        .append("svg:image")
+        .attr("xlink:href", function(d) {
+		    return ("https://cdn.rcsb.org/images/rutgers/" +
+                    d.struct.toLowerCase().substring(1,3) +
+                    "/" +
+                    d.struct.toLowerCase() +
+                    "/" +
+                    d.struct.toLowerCase() +
+                    ".pdb1-500.jpg"
+            );
+		})
+        .attr("height", 1)
+        .attr("width", 1)
+        .attr("preserveAspectRatio", "xMinYMin slice");
+
+
+    // specify the element to run the simulation on (the bubbles)
+    simulation.nodes(dataset).on('tick',ticked);
+
+    function ticked() {
+        circles
+    		.attr("cx", function(d) {
+    			return d.x
+    		})
+    		.attr("cy", function(d) {
+    			return d.y
+    		});
+    }
+}
+
+function handleMouseOver(d, i) {  // Add interactivity
+    // Use D3 to select element, change opacity and add text
+	d3.select(this).style("fill-opacity", function(d) { return "0.2";})
+
+	d3.select(this.parentNode).append("text")
+	  .attr("dx", d.x)
+	  .attr("dy", d.y)
+	  .style("text-anchor", "middle")
+      .attr("font-family", "sans-serif")
+      .attr("font-size", function(d){
+            return d.r/9;
+      })
+	  .text(function(d) {
+		  return "Uniprot: "+ d.uniprot;
+	  })
+}
+
+function handleMouseOut(d, i) {  // Add interactivity
+    // Use D3 to select element, restore opacity and hide text
+	d3.select(this).style("fill-opacity", function(d) { return "1.0";});
+	d3.select(this.parentNode).selectAll("text").remove();
+}
+
+function renderAdvancedVisualizationAgain() {
+    var svg = d3.select('#chart2').select('svg').remove();
+    renderAdvancedVisualization(dataset);
 }
