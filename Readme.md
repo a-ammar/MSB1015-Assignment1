@@ -84,6 +84,12 @@ We loop through the response of the asyncronous request to wikidata (which is a 
 - We construct the URL of the 3D structure image of the protein which is hosted on the Protein Data Bank website using the template: https://cdn.rcsb.org/images/rutgers/{second_and_third_letter_from_structure_ID}/{structure_id}/{structure_id}.pdb1-500.jpg
 
 
+## Github pages
+
+You can access the assignment HTML page through Github pages on the following URL:
+
+[https://a-ammar.github.io/MSB1015-Assignment1/](https://a-ammar.github.io/MSB1015-Assignment1/)
+
 
 ## Authors
 
