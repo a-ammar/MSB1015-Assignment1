@@ -16,7 +16,64 @@
 	</head>
 	
 	<body>
-		<pre id="table"></pre>
+
+		<div class="alert alert-success" role="alert">
+		  <h2 class="alert-heading">MSB1015 Scientific Programming - Assignment 1</h2>
+		  <hr>
+		  <h4 class="alert-heading">Author: Ammar Ammar</h2>
+		</div>
+		
+		<div class="alert alert-dark" role="alert">
+		  <h4 class="alert-heading">What are the 10 proteins that have the most PDB structures?</h4>
+		  <hr>
+		  <h4 class="alert-heading">The SPARQL query:</h4>
+		  <pre>
+<code>1> SELECT ?protein ?proteinLabel ?uniprot (SAMPLE(DISTINCT ?PDBID) as ?struct) (COUNT(DISTINCT ?PDBID) as ?count) WHERE {</code>
+<code>2>		  ?protein wdt:P31 wd:Q8054.</code>
+<code>3>		  ?protein wdt:P638 ?PDBID .</code>
+<code>4>		  ?protein wdt:P352 ?uniprot .</code>
+<code>5>		  </code>
+<code>6>		  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }</code>
+<code>7>		} GROUP BY ?protein ?proteinLabel ?uniprot</code>
+<code>8>		  ORDER BY DESC(?count)</code>
+<code>9>		  LIMIT 10 </code>
+		  </pre>
+		  <hr>
+		  <h4 class="alert-heading">Description:</h4>
+		  <p> In the first line we specified what we want to select from the SPARQL endpoint using the keyword SELECT, in our case we selected:</p>
+		  <ul>
+			<li>?protein: Protein entity ID</li>
+			<li>?proteinLabel: Protein name</li>
+			<li>?uniprot: Uniprot ID of the protein</li>
+			<li>?struct: one PDB ID for the protein</li>
+			<li>?count: the number of PDB structures for each protein</li>
+		  </ul>
+		  <p>Since we want the number of PDB structures for each protein, we used the GROUP BY clause in SPARQL to aggregate the structures count for each protein.</p>
+		  <p>The clause SAMPLE that we see in the first line is used in companion with GROUP BY and it is a set function which returns an arbitrary value from the multiset passed to it. </p>
+		  <p>We need this selected sample for a PDB structure ID to construct the URL of the image of the corresponding protein form the Protein Data Bank Website</p>
+
+		  <p>In line 2, we add a criteria for selecting only the entities of type protein (predicate P31 is "instance of", entity Q8054 is "Protein)</p>
+		  <p>In line 3, we add a criteria for selecting the PDB structure of the selected proteins (predicate P638 is "PDB structure ID")</p>
+		  <p>In line 4, we add a criteria for selecting the Uniprot ID of the selected proteins (predicate P352 is "Uniprot ID")</p>
+		  <p>In line 6, it is specific to wikidata to retrieve the label of the selected entity with specifying the language of the label</p>
+		  <p>In line 7, we use aggregation function to count the PDB structures for each protein</p>
+		  <p>In line 8, we order the results by the count of the PDB structures in decending order </p>
+		  <p>In line 10, we limit the number of returned results to 10 </p>
+		  
+		</div>
+		
+		<div class="alert alert-dark" role="alert">
+		  <h4 class="alert-heading">Constructing the table</h4>
+		  
+		  <p>We loop through the response of the asyncronous request to wikidata (which is a JSON response composed of an array of the retrieved 10 objects,
+			and for each iteration we add a row to the constructed HTML table. We do here two kinds of processing to the data:</p>
+		  <ul>
+			<li>We construct a URL from the ID of the entity of the protein (so it is linked to the actual page of the protein on Wikidata) using the template: http://www.wikidata.org/entity/{entity_ID} </li>
+			<li>We construct the URL of the 3D structure image of the protein which is hosted on the Protein Data Bank website using the template: https://cdn.rcsb.org/images/rutgers/{second_and_third_letter_from_structure_ID}/{structure_id}/{structure_id}.pdb1-500.jpg</li>
+		  </ul>  
+		</div>
+		
+		<div id="table"></div>
 		
 		<script>
 
@@ -36,6 +93,5 @@
 
 		</script>
 
-		
 	</body>
 </html>
