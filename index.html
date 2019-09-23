@@ -16,6 +16,25 @@
 	</head>
 	
 	<body>
+		<pre id="table"></pre>
+		
+		<script>
+
+			// The SPARQL query
+			query = ` SELECT ?protein ?proteinLabel ?uniprot (SAMPLE(DISTINCT ?PDBID) as ?struct) (COUNT(DISTINCT ?PDBID) as ?count) WHERE {
+					  ?protein wdt:P31 wd:Q8054.
+					  ?protein wdt:P638 ?PDBID .
+					  ?protein wdt:P352 ?uniprot .
+					  
+					  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
+					} GROUP BY ?protein ?proteinLabel ?uniprot
+					  ORDER BY DESC(?count)
+					  LIMIT 10 `;
+
+			// Get the results of the query with asyncrounous request and render the HTML table and the visulaization
+			renderSparqlQueryResults(query);
+
+		</script>
 
 		
 	</body>
